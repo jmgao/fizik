@@ -1,7 +1,8 @@
 // mounting bracket for axiom pulse 60
 ax_body_height = 19.5;
 ax_body_width = 21;
-ax_body_depth = 5;
+// this should really be 5.0, but my printer, the form 1, prints the back and rail too thick
+ax_body_depth = 5.5;
 
 ax_back_thickness = 1.75;
 ax_side_thickness = 1.25;
@@ -10,7 +11,8 @@ ax_rail_width = 3.75;
 
 ax_latch_length = 1.75;
 ax_latch_width = 4.0;
-ax_latch_height = 1.25;
+// stock is 1.25, bumped up by .5 to more securely retain
+ax_latch_height = 1.75;
 
 ax_release_cutout_width = 1.0;
 ax_release_cutout_length = 4.5;
@@ -69,16 +71,20 @@ module ax_latch() {
     }
 }
 
-translate([-ax_body_width / 2, 0, ax_body_width / 2])
-rotate([-90, 0, 0])
-union() {
-    difference() {
-        union() {
-            ax_body();
-            ax_release();
-            ax_latch();
+module axiom_bracket() {
+    translate([-ax_body_width / 2, 0, ax_body_width / 2])
+    rotate([-90, 0, 0])
+    union() {
+        difference() {
+            union() {
+                ax_body();
+                ax_release();
+                ax_latch();
+            }
+            ax_release_cutout();
         }
-        ax_release_cutout();
+        ax_latch();
     }
-    ax_latch();
 }
+
+axiom_bracket();
