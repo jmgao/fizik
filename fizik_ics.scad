@@ -5,7 +5,7 @@ use <parabolic_cylinder.scad>;
 module fizik_ics() {
     width = 30.0;
     min_depth = 18.0;
-    max_depth = min_depth * 2;
+    max_depth = min_depth * 1.8;
     height = 6.0;
 
     wall_thickness = 1.5;
@@ -74,49 +74,54 @@ module fizik_ics() {
     stop_depth = 12.0;
     stop_height = 14.0;
 
-    module stop() {
-        // Model the end as a tilted paraboloid
-        translate([width / 2, min_depth - height * tan(stop_angle), -height])
-        rotate([-stop_angle, 0, 0]) {
-            parabolic_cylinder(stop_width, stop_depth, stop_height * 2);
+
+    module stop_mask(sh = stop_height) {
+        // FIXME: Make this an extrude of the actual shape
+        vertical_height = cos(stop_angle) * sh;
+        translate([(width - stop_width) / 2, 0, height-vertical_height]) {
+            cube([stop_width, max_depth * 2, vertical_height]);
         }
     }
 
-    module mask() {
-        // FIXME: Make this an extrude of the actual shape
-        translate([(width - stop_width) / 2, 0, -cos(stop_angle) * stop_height + height]) {
-            cube([stop_width, max_depth * 2, cos(stop_angle) * stop_height]);
+    module stop_solid(sh = stop_height) {
+        // Model the end as a tilted paraboloid
+        intersection() {
+            translate([width / 2, min_depth - height * tan(stop_angle), -height])
+            rotate([-stop_angle, 0, 0])
+            translate([0,0,sh/2])
+            parabolic_cylinder(stop_width, stop_depth, sh);
+            stop_mask(sh);
+        }
+    }
+
+    module stop(sh = stop_height, wt = wall_thickness) {
+        difference() {
+            stop_solid(stop_height);
+            translate([0, wt / cos(stop_angle) , 0]) {
+                stop_solid(stop_height);
+            }
         }
     }
 
     translate([-width/2, 0, 0])
-    intersection() {
-        union() {
-            difference() {
-                union() {
-                    frame();
-                    clip();
-                }
-
-                // mask off the end
-                hull() {
-                    stop();
-                    translate([0, max_depth, 0]) {
-                        cube([width, 1, height]);
-                    }
-                }
+    union() {
+        difference() {
+            union() {
+                frame();
+                clip();
             }
 
-            difference() {
-                stop();
-                translate([0, cos(stop_angle) * wall_thickness, -sin(stop_angle) * wall_thickness]) {
-                    stop(stop_height * 2);
+            // mask off the end
+            hull() {
+                stop_solid(stop_height);
+                translate([0, max_depth, 0]) {
+                    cube([width, 1, height]);
                 }
             }
         }
-        mask();
-    }
 
+        stop(stop_height, wall_thickness);
+    }
 }
 
 fizik_ics();
