@@ -11,8 +11,8 @@ ax_rail_width = 3.75;
 
 ax_latch_length = 1.75;
 ax_latch_width = 4.0;
-// stock is 1.25, bumped up by .5 to more securely retain
-ax_latch_height = 1.75;
+// stock is 1.25, bumped up by .75 to more securely retain
+ax_latch_height = 2.0;
 
 ax_release_cutout_width = 1.0;
 ax_release_cutout_length = 4.5;
@@ -20,6 +20,15 @@ ax_release_angle = 30;
 ax_release_width = 6.0;
 ax_release_flat_length = 3.0;
 ax_release_angled_length = 8.0;
+
+module ax_body_top() {
+    translate([-ax_body_width / 2, 0, ax_body_width / 2])
+    rotate([-90, 0, 0])
+    intersection() {
+        cube([ax_body_width, 0.01, ax_back_thickness]);
+        ax_body();
+    }
+}
 
 module ax_body() {
     difference() {
@@ -86,5 +95,3 @@ module axiom_bracket() {
         ax_latch();
     }
 }
-
-axiom_bracket();
